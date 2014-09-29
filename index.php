@@ -9,10 +9,11 @@ $url_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
    by Jon Lund Steffensen, July 2011. Licenced under GPL2. */
 
 function str_endswith($s, $test) {
-    $strlen = strlen($s);
+    /*$strlen = strlen($s);
     $testlen = strlen($test);
     if ($testlen > $strlen) return FALSE;
-    return substr_compare($s, $test, -$testlen) === 0;
+    return substr_compare($s, $test, -$testlen) === 0;*/
+    return $test === "" || substr($s, -strlen($test)) === $test;
 }
 
 function header_nocache() {
@@ -37,7 +38,11 @@ function send_local_file($type, $path) {
     header('Content-Type: '.$type);
     header('Last-Modified: '.date('r', $stat['mtime']));
 
-    fpassthru($f);
+    // fpassthru($f);
+    flock($f, LOCK_SH);
+	$out = fread($f, filesize($path));
+	echo $out;
+	flock($f, LOCK_UN);
     fclose($f);
 }
 
